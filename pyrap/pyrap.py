@@ -7,7 +7,7 @@ import subprocess
 import time
 
 from ui import ask
-from ppick import select
+from treepick import pick
 os.environ.setdefault('ESCDELAY', '12')  # otherwise it takes an age!
 
 RSYNC_OPTS = [
