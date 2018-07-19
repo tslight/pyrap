@@ -45,6 +45,9 @@ def get_excludes(excludes, path, hidden):
 
 
 def mkxargs(excludes):
+    """
+    Create valid rsync exclude arguments from a list of paths.
+    """
     xargs = []
     for x in excludes:
         xargs.append('--exclude="' + x + '"')
@@ -52,6 +55,11 @@ def mkxargs(excludes):
 
 
 def copy_skel(opts, date, user, url):
+    """
+    Create and sync skeleton directory structure. Necessary for first run to
+    rsync server as there's no way to run mkdir -p on the remote.
+
+    """
     parent = "/tmp"
     skel = parent + "/Users/" + user + "/" + date
     check_dir(skel)
@@ -59,7 +67,7 @@ def copy_skel(opts, date, user, url):
     subprocess.call(cmd, shell=True)
 
 
-def pyrap(opts, src, dest, automate_excludes):
+def run(opts, src, dest):
     cmd = "rsync" + " " + rargs + " " + src + " " + dest
     subprocess.call(cmd, shell=True)
 
@@ -104,7 +112,7 @@ def process(args, users):
                 if not args.excludes:
                     excludes = get_excludes(excludes, src, hidden)
                 rargs = " ".join(opts) + " ".join(mkargs(excludes))
-                pyrap(rargs, src, dest)
+                run(rargs, src, dest)
             else:
                 question = "\n" + copytype.title() + " " + user + "? "
                 if ask(question):
@@ -113,6 +121,6 @@ def process(args, users):
                     rargs = " ".join(opts) + " ".join(mkxargs(excludes))
                     import pdb
                     pdb.set_trace()
-                    pyrap(rargs, src, dest)
+                    run(rargs, src, dest)
     else:
         print("No users to %s" % copytype)
