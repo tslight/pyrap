@@ -11,7 +11,7 @@ setuptools.setup(
     description="Rsync wrapper to backup/restore users on a host",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/tslight/rwrap",
+    url="https://github.com/tslight/pyrap",
     install_requires=['treepick'],
     packages=setuptools.find_packages(),
     classifiers=(
@@ -21,7 +21,7 @@ setuptools.setup(
     ),
     entry_points={
         'console_scripts': [
-            'rwrap = rwrap.__main__:main',
+            'pyrap = pyrap.__main__:main',
         ],
     }
 )
