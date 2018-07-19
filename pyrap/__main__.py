@@ -1,11 +1,8 @@
 import argparse
 import pwd
 import re
-import time
 
-from pyrap.pyrap import copy_skel
-from pyrap.pyrap import pyrap
-from pyrap.ui import ask
+from pyrap.pyrap import process
 
 
 def get_users():
@@ -49,33 +46,9 @@ def get_args():
 
 
 def main():
-    users = get_users()
     args = get_args()
-
-    if len(users) > 0:
-        print("Users: "+(', '.join(users.keys())))
-        for user, home in users.items():
-            if args.backup:
-                copytype = "backup"
-                date = time.strftime("%Y-%m-%d")
-                src = home + "/"
-                dest = args.url + "/Users/" + user + "/" + date
-                copy_skel(date, user, args.url)
-            elif args.restore:
-                copytype = "restore"
-                upath = (args.url + "/Users/" + user)
-                date = sorted(os.listdir(upath), reverse=True)[0]
-                src = upath + "/" + date + "/"
-                dest = home
-
-            if args.users:
-                pyrap(src, dest, args.excludes)
-            else:
-                question = "\n" + copytype.title() + " " + user + "? "
-                if ask(question):
-                    pyrap(src, dest, args.excludes)
-    else:
-        print("No users to %s" % copytype)
+    users = get_users()
+    process(args, users)
 
 
 if __name__ == '__main__':
