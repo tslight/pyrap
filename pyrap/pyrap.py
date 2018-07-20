@@ -39,7 +39,7 @@ def get_excludes(excludes, path, hidden):
     """
     # merge excludes, list + set removes duplicates.
     excludes = list(set(excludes + curses.wrapper(pick, path, hidden)))
-    print("\nSelected excludes:\n"+('\n'.join(excludes)))
+    print("\nSelected excludes:\n"+('\n'.join(sorted(excludes))))
     if ask("\nAccept and use excludes? "):
         return excludes
     else:
@@ -47,7 +47,7 @@ def get_excludes(excludes, path, hidden):
     return excludes
 
 
-def mkexcludes(automate_excludes):
+def mkexcludes(automate_excludes, src):
     """
     Create valid rsync exclude arguments from a list of paths.
     """
@@ -60,7 +60,7 @@ def mkexcludes(automate_excludes):
         '*spotify*',
         '*Spotify*',
     ]
-
+    hidden = True
     xargs = []
 
     if not automate_excludes:
@@ -71,10 +71,12 @@ def mkexcludes(automate_excludes):
     return xargs
 
 
-def run(opts, src, dest):
-    excludes = mkexcludes(args.excludes)
+def run(automate_excludes, opts, src, dest):
+    excludes = mkexcludes(automate_excludes, src)
     rargs = " ".join(opts) + " ".join(excludes)
     cmd = "rsync" + " " + rargs + " " + src + " " + dest
+    import pdb
+    pdb.set_trace()
     subprocess.call(cmd, shell=True)
 
 
@@ -91,7 +93,6 @@ def copy_skel(opts, date, user, url):
 
 
 def process(args, users):
-    hidden = True
 
     opts = [
         '--archive ',
@@ -117,10 +118,10 @@ def process(args, users):
                 dest = home
 
             if args.users:
-                run(args.excludes, src, dest)
+                run(args.excludes, opts, src, dest)
             else:
                 question = "\n" + copytype.title() + " " + user + "? "
                 if ask(question):
-                    run(args.excludes, src, dest)
+                    run(args.excludes, opts, src, dest)
     else:
         print("No users to %s" % copytype)
