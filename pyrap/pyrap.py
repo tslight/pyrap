@@ -32,18 +32,18 @@ def get_last(path):
         return sorted(os.listdir(path), reverse=True)[0]
 
 
-def get_excludes(excludes, path, hidden):
+def get_excludes(path, hidden):
     """
     Takes a path as an argument and returns a list of child paths that the user
     has selected.
     """
     # merge excludes, list + set removes duplicates.
-    excludes = list(set(excludes + curses.wrapper(pick, path, hidden)))
+    excludes = curses.wrapper(pick, path, hidden)
     print("\nSelected excludes:\n"+('\n'.join(sorted(excludes))))
     if ask("\nAccept and use excludes? "):
         return excludes
     else:
-        excludes = list(set(excludes + curses.wrapper(pick, path, hidden)))
+        excludes = get_excludes(path, hidden)
     return excludes
 
 
@@ -52,21 +52,28 @@ def mkexcludes(automate_excludes, src):
     Create valid rsync exclude arguments from a list of paths.
     """
     excludes = [
+        '.*/',
+        '.*',
         '*.ost',
         '*.pst',
         '.DS_Store',
         '.localized',
-        'desktop.ini',
         '*spotify*',
         '*Spotify*',
+        'Applications/',
+        'Library/',
+        'Downloads/',
+        'desktop.ini',
     ]
     hidden = True
     xargs = []
 
     if not automate_excludes:
-        excludes = get_excludes(excludes, src, hidden)
+        excludes = get_excludes(src, hidden)
 
     for x in excludes:
+        if x.startswith(src):
+            x = x.replace(src, '')
         xargs.append('--exclude="' + x + '"')
     return xargs
 
@@ -75,8 +82,6 @@ def run(automate_excludes, opts, src, dest):
     excludes = mkexcludes(automate_excludes, src)
     rargs = " ".join(opts) + " ".join(excludes)
     cmd = "rsync" + " " + rargs + " " + src + " " + dest
-    import pdb
-    pdb.set_trace()
     subprocess.call(cmd, shell=True)
 
 
@@ -85,23 +90,24 @@ def copy_skel(opts, date, user, url):
     Create and sync skeleton directory structure. Necessary for first run to
     rsync server as there's no way to run mkdir -p on the remote.
     """
-    parent = "/tmp"
-    skel = parent + "/Users/" + user + "/" + date
+    parent = "/tmp/rsync/"
+    skel = parent + "Users/" + user + "/" + date
     check_dir(skel)
-    cmd = "rsync " + ' '.join(opts) + " --quiet " + skel + " " + url
+    cmd = "rsync " + ' '.join(opts) + " --quiet " + parent + " " + url
     subprocess.call(cmd, shell=True)
 
 
 def process(args, users):
 
-    opts = [
-        '--archive ',
-        '--human-readable ',
-    ]
-
     if len(users) > 0:
         print("Users: "+(', '.join(users.keys())))
         for user, home in users.items():
+            opts = [
+                '--archive',
+                '--human-readable',
+                '--info=progress2',
+                # '--no-inc-recursive',
+            ]
             if args.backup:
                 copytype = "backup"
                 date = time.strftime("%Y-%m-%d")
