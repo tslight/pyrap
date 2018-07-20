@@ -82,7 +82,6 @@ def copy_skel(opts, date, user, url):
     """
     Create and sync skeleton directory structure. Necessary for first run to
     rsync server as there's no way to run mkdir -p on the remote.
-
     """
     parent = "/tmp"
     skel = parent + "/Users/" + user + "/" + date
