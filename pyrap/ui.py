@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import fnmatch
 import os
 import re

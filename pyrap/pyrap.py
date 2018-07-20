@@ -121,8 +121,6 @@ def process(args, users):
             else:
                 question = "\n" + copytype.title() + " " + user + "? "
                 if ask(question):
-                    import pdb
-                    pdb.set_trace()
                     run(args.excludes, src, dest)
     else:
         print("No users to %s" % copytype)
