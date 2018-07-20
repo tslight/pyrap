@@ -78,11 +78,13 @@ def mkexcludes(automate_excludes, src):
     return xargs
 
 
-def run(automate_excludes, opts, src, dest):
+def run(type_, user, automate_excludes, opts, src, dest):
     excludes = mkexcludes(automate_excludes, src)
     rargs = " ".join(opts) + " ".join(excludes)
     cmd = "rsync" + " " + rargs + " " + src + " " + dest
+    print("\nStarting %s of %s..." % (type_, user))
     subprocess.call(cmd, shell=True)
+    print("\rFinished %s of %s." % (type_, user))
 
 
 def copy_skel(opts, date, user, url):
@@ -98,7 +100,6 @@ def copy_skel(opts, date, user, url):
 
 
 def process(args, users):
-
     if len(users) > 0:
         print("Users: "+(', '.join(users.keys())))
         for user, home in users.items():
@@ -106,10 +107,10 @@ def process(args, users):
                 '--archive',
                 '--human-readable',
                 '--info=progress2',
-                # '--no-inc-recursive',
+                '--no-inc-recursive',
             ]
             if args.backup:
-                copytype = "backup"
+                type_ = "backup"
                 date = time.strftime("%Y-%m-%d")
                 src = home + "/"
                 dest = args.url + "/Users/" + user + "/" + date
@@ -117,17 +118,16 @@ def process(args, users):
                 lastbkup = get_last(args.url + "/Users/" + user)
                 opts.append('--link-dest="../' + lastbkup + '" ')
             elif args.restore:
-                copytype = "restore"
+                type_ = "restore"
                 upath = (args.url + "/Users/" + user)
                 date = get_last(upath)
                 src = upath + "/" + date + "/"
                 dest = home
-
             if args.users:
-                run(args.excludes, opts, src, dest)
+                run(type_, user, args.excludes, opts, src, dest)
             else:
-                question = "\n" + copytype.title() + " " + user + "? "
+                question = "\n" + type_.title() + " " + user + "? "
                 if ask(question):
-                    run(args.excludes, opts, src, dest)
+                    run(type_, user, args.excludes, opts, src, dest)
     else:
-        print("No users to %s" % copytype)
+        print("No users to %s" % type_)
