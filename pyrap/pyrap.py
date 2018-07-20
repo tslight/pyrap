@@ -19,6 +19,9 @@ def check_dir(path):
 
 
 def get_last(path):
+    """
+    Find the last backup given a directory with dated child directories.
+    """
     if path.startswith('rsync://'):
         rsync = "rsync" + " " + path + "/ | "
         pipe = "awk '{print $5}' | sed '/\./d' | sort -nr | awk 'NR==2'"
@@ -44,14 +47,35 @@ def get_excludes(excludes, path, hidden):
     return excludes
 
 
-def mkxargs(excludes):
+def mkexcludes(automate_excludes):
     """
     Create valid rsync exclude arguments from a list of paths.
     """
+    excludes = [
+        '*.ost',
+        '*.pst',
+        '.DS_Store',
+        '.localized',
+        'desktop.ini',
+        '*spotify*',
+        '*Spotify*',
+    ]
+
     xargs = []
+
+    if not automate_excludes:
+        excludes = get_excludes(excludes, src, hidden)
+
     for x in excludes:
         xargs.append('--exclude="' + x + '"')
     return xargs
+
+
+def run(opts, src, dest):
+    excludes = mkexcludes(args.excludes)
+    rargs = " ".join(opts) + " ".join(excludes)
+    cmd = "rsync" + " " + rargs + " " + src + " " + dest
+    subprocess.call(cmd, shell=True)
 
 
 def copy_skel(opts, date, user, url):
@@ -67,27 +91,12 @@ def copy_skel(opts, date, user, url):
     subprocess.call(cmd, shell=True)
 
 
-def run(opts, src, dest):
-    cmd = "rsync" + " " + rargs + " " + src + " " + dest
-    subprocess.call(cmd, shell=True)
-
-
 def process(args, users):
     hidden = True
 
     opts = [
         '--archive ',
         '--human-readable ',
-    ]
-
-    excludes = [
-        '*.ost',
-        '*.pst',
-        '.DS_Store',
-        '.localized',
-        'desktop.ini',
-        '*spotify*',
-        '*Spotify*',
     ]
 
     if len(users) > 0:
@@ -109,18 +118,12 @@ def process(args, users):
                 dest = home
 
             if args.users:
-                if not args.excludes:
-                    excludes = get_excludes(excludes, src, hidden)
-                rargs = " ".join(opts) + " ".join(mkargs(excludes))
-                run(rargs, src, dest)
+                run(args.excludes, src, dest)
             else:
                 question = "\n" + copytype.title() + " " + user + "? "
                 if ask(question):
-                    if not args.excludes:
-                        excludes = get_excludes(excludes, src, hidden)
-                    rargs = " ".join(opts) + " ".join(mkxargs(excludes))
                     import pdb
                     pdb.set_trace()
-                    run(rargs, src, dest)
+                    run(args.excludes, src, dest)
     else:
         print("No users to %s" % copytype)
