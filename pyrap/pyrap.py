@@ -3,11 +3,11 @@ import os
 import subprocess
 import time
 
-from yorn.ask import ask
-from treepick.pick import pick
+from yorn import ask
+from treepick import pick
 
 
-def check_dir(path):
+def chkdir(path):
     """
     Check if a directory exists and if not try to create it.
     """
@@ -87,14 +87,14 @@ def run(type_, user, automate_excludes, opts, src, dest):
     print("\rFinished %s of %s." % (type_, user))
 
 
-def copy_skel(opts, date, user, url):
+def cpskel(opts, date, user, url):
     """
     Create and sync skeleton directory structure. Necessary for first run to
     rsync server as there's no way to run mkdir -p on the remote.
     """
     parent = "/tmp/rsync/"
     skel = parent + "Users/" + user + "/" + date
-    check_dir(skel)
+    chkdir(skel)
     cmd = "rsync " + ' '.join(opts) + " --quiet " + parent + " " + url
     subprocess.call(cmd, shell=True)
 
@@ -114,7 +114,7 @@ def process(args, users):
                 date = time.strftime("%Y-%m-%d")
                 src = home + "/"
                 dest = args.url + "/Users/" + user + "/" + date
-                copy_skel(opts, date, user, args.url)
+                cpskel(opts, date, user, args.url)
                 lastbkup = get_last(args.url + "/Users/" + user)
                 opts.append('--link-dest="../' + lastbkup + '" ')
             elif args.restore:

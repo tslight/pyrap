@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pyrap",
-    version="0.0.3",
+    version="0.0.4",
     author="Toby Slight",
     author_email="tobyslight@gmail.com",
     description="Rsync Wrapper to Backup/Restore all Users.",

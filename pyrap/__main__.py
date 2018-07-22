@@ -2,7 +2,7 @@ import argparse
 import pwd
 import re
 
-from .pyrap import process
+from pyrap import process
 
 
 def get_users():
