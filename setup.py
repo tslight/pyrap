@@ -8,7 +8,7 @@ setuptools.setup(
     version="0.0.3",
     author="Toby Slight",
     author_email="tobyslight@gmail.com",
-    description="Rsync Wrapper to Backup/Restore Users on a Host",
+    description="Rsync Wrapper to Backup/Restore all Users.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/tslight/pyrap",
