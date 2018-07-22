@@ -3,7 +3,7 @@ import os
 import subprocess
 import time
 
-from yorn import ask
+from yorn.ask import ask
 from treepick.pick import pick
 
 
