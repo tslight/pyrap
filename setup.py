@@ -5,10 +5,10 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pyrap",
-    version="0.0.2",
+    version="0.0.3",
     author="Toby Slight",
     author_email="tobyslight@gmail.com",
-    description="Rsync wrapper to backup/restore users on a host",
+    description="Rsync Wrapper to Backup/Restore Users on a Host",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/tslight/pyrap",
