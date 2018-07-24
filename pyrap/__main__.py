@@ -1,8 +1,23 @@
 import argparse
+import os
 import pwd
 import re
+import sys
 
 from pyrap import process
+
+
+def chkroot():
+    """
+    Exit script if not running as root.
+    """
+    red = "\033[1;31m"
+    reset = "\033[0;0m"
+    if os.geteuid() != 0:
+        sys.stdout.write(red)
+        print("\nThis program must be run as root.\n")
+        sys.stdout.write(reset)
+        sys.exit(1)
 
 
 def get_users():
@@ -46,6 +61,7 @@ def get_args():
 
 
 def main():
+    chkroot()
     args = get_args()
     users = get_users()
     process(args, users)
