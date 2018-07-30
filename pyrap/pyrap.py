@@ -39,8 +39,11 @@ def get_excludes(path, hidden):
     """
     # merge excludes, list + set removes duplicates.
     excludes = curses.wrapper(pick, path, hidden)
-    print("\nSelected excludes:\n"+('\n'.join(sorted(excludes))))
-    if ask("\nAccept and use excludes? "):
+    if excludes:
+        print("\nSelected excludes:\n\n"+('\n'.join(sorted(excludes))))
+    else:
+        print("\nNo excludes selected.")
+    if ask("Accept and continue? "):
         return excludes
     else:
         excludes = get_excludes(path, hidden)
@@ -101,7 +104,7 @@ def cpskel(opts, date, user, url):
 
 def process(args, users):
     if len(users) > 0:
-        print("Users: "+(', '.join(users.keys())))
+        print("\nUsers: "+(', '.join(users.keys())))
         for user, home in users.items():
             opts = [
                 '--archive',
@@ -126,7 +129,7 @@ def process(args, users):
             if args.users:
                 run(type_, user, args.excludes, opts, src, dest)
             else:
-                question = "\n" + type_.title() + " " + user + "? "
+                question = type_.title() + " " + user + "? "
                 if ask(question):
                     run(type_, user, args.excludes, opts, src, dest)
     else:
