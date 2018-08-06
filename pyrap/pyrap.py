@@ -1,5 +1,6 @@
 import curses
 import os
+import re
 import subprocess
 import time
 
@@ -32,13 +33,17 @@ def get_last(path):
         return sorted(os.listdir(path), reverse=True)[0]
 
 
-def get_excludes(path, hidden):
+def get_excludes(old_excludes, path):
     """
     Takes a path as an argument and returns a list of child paths that the user
     has selected.
     """
+    os.system('cls') if os.name == 'nt' else os.system('clear')
     # merge excludes, list + set removes duplicates.
-    excludes = curses.wrapper(pick, path, hidden)
+    new_excludes = curses.wrapper(
+        pick, path, picked=old_excludes, hidden=True, relative=True)
+    new_excludes = set(new_excludes)
+    excludes = set(old_excludes + new_excludes)
     if excludes:
         print("\nSelected excludes:\n\n"+('\n'.join(sorted(excludes))))
     else:
@@ -46,16 +51,16 @@ def get_excludes(path, hidden):
     if ask("Accept and continue? "):
         return excludes
     else:
-        excludes = get_excludes(path, hidden)
+        excludes = get_excludes(old_excludes, path)
     return excludes
 
 
 def mkexcludes(automate_excludes, src):
+    from textwrap import dedent
     """
     Create valid rsync exclude arguments from a list of paths.
     """
-    excludes = [
-        '.*/',
+    excludes = {
         '.*',
         '*.ost',
         '*.pst',
@@ -63,16 +68,44 @@ def mkexcludes(automate_excludes, src):
         '.localized',
         '*spotify*',
         '*Spotify*',
-        'Applications/',
-        'Library/',
-        'Downloads/',
+        'Applications',
+        'Library',
+        'Downloads',
         'desktop.ini',
-    ]
-    hidden = True
+    }
     xargs = []
 
     if not automate_excludes:
-        excludes = get_excludes(src, hidden)
+        while True:
+            os.system('cls') if os.name == 'nt' else os.system('clear')
+
+            head = "Default Excludes:"
+            msg = """
+            Please select from the following options:
+
+            (c)ontinue using default excludes listed above.
+            (a)dd to excludes listed above using treepick.
+            (d)elete all excludes and continue with no excludes.
+            (r)emove all excludes and select different excludes.
+            """
+            msg = dedent(msg).strip()
+            print("\n{}\n\n{}\n\n{}\n".format(head, "\n".join(excludes), msg))
+            ans = input("\n----> ")
+            al = ans.lower()
+            if re.match('^c(ontinue)?$', al):
+                break
+            elif re.match('^a(dd)?$', al):
+                excludes = get_excludes(excludes, src)
+                break
+            elif re.match('^d(elete)?$', al):
+                excludes = []
+                break
+            elif re.match('^r(emove)?$', al):
+                excludes = []
+                excludes = get_excludes(excludes, src)
+                break
+            else:
+                print("%s is invalid. Enter (y)es, (n)o or (q)uit." % ans)
 
     for x in excludes:
         if x.startswith(src):
