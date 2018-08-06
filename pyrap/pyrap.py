@@ -41,9 +41,8 @@ def get_excludes(old_excludes, path):
     os.system('cls') if os.name == 'nt' else os.system('clear')
     # merge excludes, list + set removes duplicates.
     new_excludes = curses.wrapper(
-        pick, path, picked=old_excludes, hidden=True, relative=True)
-    new_excludes = set(new_excludes)
-    excludes = set(old_excludes + new_excludes)
+        pick, path, hidden=True, relative=True, picked=old_excludes)
+    excludes = list(set(old_excludes + new_excludes))
     if excludes:
         print("\nSelected excludes:\n\n"+('\n'.join(sorted(excludes))))
     else:
@@ -51,7 +50,7 @@ def get_excludes(old_excludes, path):
     if ask("Accept and continue? "):
         return excludes
     else:
-        excludes = get_excludes(old_excludes, path)
+        excludes = get_excludes(excludes, path)
     return excludes
 
 
@@ -60,19 +59,17 @@ def mkexcludes(automate_excludes, src):
     """
     Create valid rsync exclude arguments from a list of paths.
     """
-    excludes = {
+    excludes = [
         '.*',
         '*.ost',
         '*.pst',
         '.DS_Store',
         '.localized',
-        '*spotify*',
-        '*Spotify*',
         'Applications',
         'Library',
         'Downloads',
         'desktop.ini',
-    }
+    ]
     xargs = []
 
     if not automate_excludes:
