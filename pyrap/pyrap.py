@@ -4,6 +4,7 @@ import re
 import subprocess
 import time
 
+from columns import prtcols
 from yorn import ask
 from treepick import pick
 
@@ -42,9 +43,10 @@ def get_excludes(old_excludes, path):
     # merge excludes, list + set removes duplicates.
     new_excludes = curses.wrapper(
         pick, path, hidden=True, relative=True, picked=old_excludes)
-    excludes = list(set(old_excludes + new_excludes))
+    excludes = sorted(list(set(old_excludes + new_excludes)))
     if excludes:
-        print("\nSelected excludes:\n\n"+('\n'.join(sorted(excludes))))
+        print("\nSelected excludes:\n")
+        prtcols(excludes, 8)
     else:
         print("\nNo excludes selected.")
     if ask("Accept and continue? "):
@@ -76,7 +78,8 @@ def mkexcludes(automate_excludes, src):
         while True:
             os.system('cls') if os.name == 'nt' else os.system('clear')
 
-            head = "Default Excludes:"
+            print("Default Excludes:")
+            prtcols(excludes, 10)
             msg = """
             Please select from the following options:
 
@@ -86,7 +89,7 @@ def mkexcludes(automate_excludes, src):
             (r)emove all excludes and select different excludes.
             """
             msg = dedent(msg).strip()
-            print("\n{}\n\n{}\n\n{}\n".format(head, "\n".join(excludes), msg))
+            print("{}".format(msg))
             ans = input("\n----> ")
             al = ans.lower()
             if re.match('^c(ontinue)?$', al):
