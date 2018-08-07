@@ -40,12 +40,10 @@ def get_excludes(excludes, path):
     has selected.
     """
     os.system('cls') if os.name == 'nt' else os.system('clear')
-    # merge excludes, list + set removes duplicates.
     excludes = curses.wrapper(pick, path, relative=True, picked=excludes)
-    excludes = sorted(excludes)
     if excludes:
         print("\nSelected excludes:\n")
-        prtcols(excludes, 8)
+        prtcols(sorted(excludes), 8)
     else:
         print("\nNo excludes selected.")
     if ask("Accept and continue? "):
