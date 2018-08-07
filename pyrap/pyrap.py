@@ -34,16 +34,15 @@ def get_last(path):
         return sorted(os.listdir(path), reverse=True)[0]
 
 
-def get_excludes(old_excludes, path):
+def get_excludes(excludes, path):
     """
     Takes a path as an argument and returns a list of child paths that the user
     has selected.
     """
     os.system('cls') if os.name == 'nt' else os.system('clear')
     # merge excludes, list + set removes duplicates.
-    new_excludes = curses.wrapper(
-        pick, path, hidden=True, relative=True, picked=old_excludes)
-    excludes = sorted(list(set(old_excludes + new_excludes)))
+    excludes = curses.wrapper(pick, path, relative=True, picked=excludes)
+    excludes = sorted(excludes)
     if excludes:
         print("\nSelected excludes:\n")
         prtcols(excludes, 8)
@@ -72,13 +71,14 @@ def mkexcludes(automate_excludes, src):
         'Downloads',
         'desktop.ini',
     ]
+    err = None
     xargs = []
 
     if not automate_excludes:
         while True:
             os.system('cls') if os.name == 'nt' else os.system('clear')
 
-            print("Default Excludes:")
+            print("\nDefault Excludes:\n")
             prtcols(excludes, 10)
             msg = """
             Please select from the following options:
@@ -89,8 +89,10 @@ def mkexcludes(automate_excludes, src):
             (r)emove all excludes and select different excludes.
             """
             msg = dedent(msg).strip()
-            print("{}".format(msg))
-            ans = input("\n----> ")
+            print("\n{}\n".format(msg))
+            if err:
+                print("{}\n".format(err))
+            ans = input("----> ")
             al = ans.lower()
             if re.match('^c(ontinue)?$', al):
                 break
@@ -104,8 +106,10 @@ def mkexcludes(automate_excludes, src):
                 excludes = []
                 excludes = get_excludes(excludes, src)
                 break
+            elif re.match('^q(uit)?$', al):
+                quit()
             else:
-                print("%s is invalid. Enter (y)es, (n)o or (q)uit." % ans)
+                err = ans + " is invalid."
 
     for x in excludes:
         if x.startswith(src):
