@@ -26,7 +26,7 @@ def get_last(path):
     """
     if path.startswith('rsync://'):
         rsync = "rsync" + " " + path + "/ | "
-        pipe = "awk '{print $5}' | sed '/\./d' | sort -nr | awk 'NR==2'"
+        pipe = "sort -nr | awk '!/\./ && NR==2 {print $5}'"
         return subprocess.Popen(rsync + pipe,
                                 shell=True, stdout=subprocess.PIPE,
                                 universal_newlines=True).stdout.read().strip()
@@ -152,8 +152,9 @@ def process(args, users):
                 date = time.strftime("%Y-%m-%d")
                 src = home + "/"
                 dest = args.url + "/Users/" + user + "/" + date
-                cpskel(opts, date, user, args.url)
                 lastbkup = get_last(args.url + "/Users/" + user)
+                # needs to come after lastbkup is set.
+                cpskel(opts, date, user, args.url)
                 opts.append('--link-dest="../' + lastbkup + '" ')
             elif args.restore:
                 type_ = "restore"
