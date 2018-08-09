@@ -141,6 +141,7 @@ def cpskel(opts, date, user, url):
 
 
 def process(args, users):
+    os.system('cls') if os.name == 'nt' else os.system('clear')
     if len(users) > 0:
         print("\nUsers: "+(', '.join(users.keys())))
         for user, home in users.items():
