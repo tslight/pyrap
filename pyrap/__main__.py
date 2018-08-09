@@ -44,7 +44,7 @@ def get_args():
     Return a list of valid arguments.
     """
     parser = argparse.ArgumentParser(description='\
-    Backup or restore users to an rsync server.')
+    Backup or restore users to an rsync server. Must be run as root.')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-b", "--backup", action="store_true",
                        help="Backup users to rsync server or path.")
@@ -64,8 +64,8 @@ def get_args():
 
 
 def main():
-    chkroot()
     args = get_args()
+    chkroot()
     users = get_users()
     process(args, users)
 
