@@ -29,7 +29,7 @@ def get_last(path):
     """
     if path.startswith('rsync://'):
         rsync = "rsync" + " " + path + "/ | "
-        pipe = "sort -nr | awk '!/\./ && NR==2 {print $5}'"
+        pipe = "sort -nr | awk '!/\./ {print $5}' | head -n 1"
         return subprocess.Popen(rsync + pipe,
                                 shell=True, stdout=subprocess.PIPE,
                                 universal_newlines=True).stdout.read().strip()
